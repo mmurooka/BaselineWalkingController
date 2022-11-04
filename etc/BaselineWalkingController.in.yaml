@@ -66,6 +66,7 @@ ObserverPipelines:
   gui: false
   observers:
     - type: Encoder
+    # - type: Attitude # Need jrl-umi3218/mc_state_observation
     - type: KinematicInertial
       config:
         anchorFrame:
@@ -75,6 +76,11 @@ controllerName: BWC
 
 PostureTask:
   stiffness: 10
+  jointGains:
+    - jointName: CHEST_JOINT0
+      stiffness: 1000.0
+    - jointName: CHEST_JOINT1
+      stiffness: 1000.0
 
 CoMTask:
   type: com
@@ -82,14 +88,15 @@ CoMTask:
   weight: 1000.0
   activeJoints: [
   "Root",
-  "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE", "R_ANKLE_P", "R_ANKLE_R",
-  "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE", "L_ANKLE_P", "L_ANKLE_R"]
+  "CHEST_JOINT0", "CHEST_JOINT1",
+  "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2", "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
+  "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5"]
 
 BaseOrientationTask:
   type: orientation
   stiffness: 300.0
   weight: 500.0
-  body: WAIST_R_S
+  body: CHEST_LINK1
 
 FootTaskList:
   - type: firstOrderImpedance
@@ -107,15 +114,15 @@ FootTaskList:
 
 FootManager:
   name: FootManager
-  footstepDuration: 0.8 # [sec]
-  doubleSupportRatio: 0.125 # []
+  footstepDuration: 1.2 # [sec]
+  doubleSupportRatio: 0.2 # []
   midToFootTranss:
     Left:
       translation: [0, 0.105, 0] # [m]
     Right:
       translation: [0, -0.105, 0] # [m]
   zmpHorizon: 2.0 # [sec]
-  zmpOffset: [0, -0.02, 0] # (positive for x-forward, y-outside, z-upward) [m]
+  zmpOffset: [0, -0.03, 0] # (positive for x-forward, y-outside, z-upward) [m]
   overwriteLandingPose: false
   stopSwingTrajForTouchDownFoot: true
   keepSupportFootPoseForTouchDownFoot: false
@@ -137,13 +144,13 @@ FootManager:
         angular: [1, 1, 0]
     doubleSupport:
       damper:
-        linear: [1e4, 1e4, 1e4]
+        linear: [300, 300, 1e4]
         angular: [100, 100, 100]
       spring:
-        linear: [0, 0, 0]
+        linear: [2250, 2250, 0]
         angular: [0, 0, 2000]
       wrench:
-        linear: [1, 1, 1]
+        linear: [0, 0, 1]
         angular: [1, 1, 0]
     swing:
       damper:
@@ -161,13 +168,13 @@ CentroidalManager:
   useActualStateForMpc: false
   enableZmpFeedback: true
   enableComZFeedback: true
-  dcmGainP: 1.2 # It must be greater than 1 to be stable
+  dcmGainP: 2.0 # It must be greater than 1 to be stable
   zmpVelGain: 0.02
   comZGainP: 2000.0
   comZGainD: 500.0
-  refComZ: 0.825 # [m]
+  refComZ: 0.87 # [m]
   useTargetPoseForControlRobotAnchorFrame: true
-  useActualComForWrenchDist: true
+  useActualComForWrenchDist: false
   wrenchDistConfig:
     wrenchWeight:
       linear: [1.0, 1.0, 1.0]
