@@ -82,14 +82,14 @@ CoMTask:
   weight: 1000.0
   activeJoints: [
   "Root",
-  "R_HIP_Y", "R_HIP_R", "R_HIP_P", "R_KNEE", "R_ANKLE_P", "R_ANKLE_R",
-  "L_HIP_Y", "L_HIP_R", "L_HIP_P", "L_KNEE", "L_ANKLE_P", "L_ANKLE_R"]
+  "LCY", "LCR", "LCP", "LKP", "LAP", "LAR",
+  "RCY", "RCR", "RCP", "RKP", "RAP", "RAR"]
 
 BaseOrientationTask:
   type: orientation
   stiffness: 300.0
   weight: 500.0
-  body: WAIST_R_S
+  body: Chest_Link2
 
 FootTaskList:
   - type: firstOrderImpedance
@@ -107,8 +107,8 @@ FootTaskList:
 
 FootManager:
   name: FootManager
-  footstepDuration: 0.8 # [sec]
-  doubleSupportRatio: 0.125 # []
+  footstepDuration: 1.2 # [sec]
+  doubleSupportRatio: 0.2 # []
   midToFootTranss:
     Left:
       translation: [0, 0.105, 0] # [m]
@@ -130,20 +130,20 @@ FootManager:
         linear: [300, 300, 300]
         angular: [100, 100, 100]
       spring:
-        linear: [2250, 2250, 2250]
+        linear: [2250, 2250, 450] # Weaken the Z-component spring to avoid a too fast recovery for mass errors
         angular: [0, 0, 2000]
       wrench:
         linear: [0, 0, 0]
         angular: [1, 1, 0]
     doubleSupport:
       damper:
-        linear: [1e4, 1e4, 1e4]
+        linear: [300, 300, 1e4]
         angular: [100, 100, 100]
       spring:
-        linear: [0, 0, 0]
+        linear: [2250, 2250, 0]
         angular: [0, 0, 2000]
       wrench:
-        linear: [1, 1, 1]
+        linear: [0, 0, 1]
         angular: [1, 1, 0]
     swing:
       damper:
@@ -161,13 +161,13 @@ CentroidalManager:
   useActualStateForMpc: false
   enableZmpFeedback: true
   enableComZFeedback: true
-  dcmGainP: 1.2 # It must be greater than 1 to be stable
+  dcmGainP: 2.0 # It must be greater than 1 to be stable
   zmpVelGain: 0.02
-  comZGainP: 2000.0
+  comZGainP: 20000.0
   comZGainD: 500.0
-  refComZ: 0.825 # [m]
+  refComZ: 0.95 # [m]
   useTargetPoseForControlRobotAnchorFrame: true
-  useActualComForWrenchDist: true
+  useActualComForWrenchDist: false
   wrenchDistConfig:
     wrenchWeight:
       linear: [1.0, 1.0, 1.0]
@@ -178,7 +178,7 @@ CentroidalManager:
   # PreviewControlZmp
   method: PreviewControlZmp
   horizonDuration: 2.0 # [sec]
-  horizonDt: 0.005 # [sec]
+  horizonDt: 0.002 # [sec]
 
   # # DdpZmp
   # method: DdpZmp
